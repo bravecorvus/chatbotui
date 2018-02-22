@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"flag"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -41,7 +40,7 @@ func getQueries(c redis.Conn) *QueryAnswerList {
 	list := &QueryAnswerList{}
 	ret, _ := redis.Strings(c.Do("HKEYS", "responses"))
 	for _, elem := range ret {
-		fmt.Println(elem)
+		// fmt.Println(elem)
 		answer, _ := redis.String(c.Do("HGET", "responses", elem))
 		list.QueryAnswers = append(list.QueryAnswers, QueryAnswer{Query: elem, Answer: answer})
 	}
@@ -63,7 +62,7 @@ func main() {
 	defer redisconn.Close()
 
 	ret, _ := redisconn.Do("SELECT", "1")
-	fmt.Printf("%s\n", ret)
+	// fmt.Printf("%s\n", ret)
 
 	r := mux.NewRouter()
 
