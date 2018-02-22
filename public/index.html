@@ -1,0 +1,130 @@
+<!--Andrew Lee 2017-->
+<html>
+    <head>
+        <script type="text/javascript" src="https://unpkg.com/vue@2.1.10/dist/vue.js"></script>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <style>
+          h1, table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+          }
+
+          td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+          }
+
+          tr:nth-child(even) {
+            background-color: #dddddd;
+          }
+          button {
+            font-family: sans-serif
+            font-weight: bold
+          }
+        </style>
+    </head>
+    <body>
+        <h1>Chatbot Admin Interface</h1>
+        <div id="app"> <!--Vue.js-->
+          <table>
+          <tr>
+            <th>Query</th>
+            <th>Answer</th>
+            <th>Remove Entry</th>
+          </tr>
+          <tr v-for="(elem, index) in queryanswers">
+            <td>{{ elem.query }}</td>
+            <td>{{ elem.answer }}</td>
+            <td><button @click="remove(elem.query)"><font color="red">X</font></button></td>
+          </tr>
+          <tr>
+            <td><input v-model="query"></td>
+            <td><input v-model="answer"></td>
+            <td><button style="background-color: green;" @click="add"><font id="greenbg" color="white">Submit New Entry</font></button></td>
+          </tr>
+          </table>
+          <!-- <ul> -->
+            <!-- <li v-for="(elem, index) in queryanswers"> -->
+              <!-- {{ elem }}<br/> -->
+              <!-- {{ index }} -->
+              <!-- {{ elem.query }} -->
+              <!-- {{ elem.answer }} -->
+            <!-- </li> -->
+          <!-- </ul> -->
+        </div> <!--Vue.js-->
+    </body>
+
+    <script>
+      var vm = new Vue({
+        el: '#app',
+        data: {
+          queryanswers: [],
+          query: '',
+          answer: '',
+        },
+        methods: {
+
+            
+          remove(query) {
+            for (var i = 0; i < this.queryanswers.length; i++) {
+              if (this.queryanswers[i].query === query) {
+                this.queryanswers.splice(i, 1);
+                break;
+              }
+            }
+//            console.log("/delete/" + query.replace(/ /g,"_"))
+            $.ajax(
+                {
+                    url: "/delete/" + query.replace(/ /g,"_").replace(/\?/g,"QUESTIONMARK"),
+                    type: 'post',
+                }
+            );
+
+          },
+
+          add() {
+
+            var newkey = true;
+            for (var i = 0; i < this.queryanswers.length; i++) {
+              if (this.queryanswers[i].query === this.query) {
+                this.queryanswers[i].answer = this.answer;
+                newkey = false;
+                break;
+              }
+            }
+            if (newkey) {
+              this.queryanswers.push({"query": this.query, "answer": this.answer})
+            }
+
+//            console.log("/addnew/" + this.query.replace(/ /g,"_") + this.answer.replace(/ /g,"_"))
+            $.ajax(
+                {
+                    url: "/addnew/" + this.query.replace(/ /g,"_").replace(/\?/g,"QUESTIONMARK") + "/" +  this.answer.replace(/ /g,"_").replace(/\?/g,"QUESTIONMARK"),
+                    type: 'post',
+                }
+            );
+
+            this.query = '';
+            this.answer = '';
+
+             console.log(this.query.replace(/ /g,"_"))
+             console.log(this.answer.replace(/ /g,"_"))
+          }
+
+        },
+
+        created() {
+          $.ajaxSetup({ cache: false });
+          $.getJSON('http://' + window.location.host + '/data')
+              .done(data => {
+                  this.queryanswers = data.list;
+          });
+
+        },
+
+      })
+
+    </script>
+</html>
