@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -62,7 +63,7 @@ func main() {
 	defer redisconn.Close()
 
 	ret, _ := redisconn.Do("SELECT", "1")
-	// fmt.Printf("%s\n", ret)
+	fmt.Printf("%s\n", ret)
 
 	r := mux.NewRouter()
 
